@@ -17,7 +17,7 @@ st.set_page_config(
 with st.container():
     st.title("Stock analysis")
     st.markdown(
-        "*This dashboard has been thought of as a tool to get a better understanding of trends ine the financial market*"
+        "*This dashboard has been designed as a tool to get a better understanding of trends in the financial market and help make educated decisions*"
     )
     st.markdown("##")
 
