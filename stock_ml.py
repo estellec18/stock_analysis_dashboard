@@ -125,7 +125,7 @@ def wordcloud_analysis(ticker: str):
     """Returns a word cloud of the articles written about the company
 
     Args:
-        ticker (str): ticker of the colmpany being analysed
+        ticker (str): ticker of the company being analysed
     """
 
     stock = finvizfinance(ticker, verbose=0)
@@ -155,8 +155,8 @@ def wordcloud_analysis(ticker: str):
     fig, ax = plt.subplots(1, 1, figsize=(9, 6))
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.title(
-        f"Word cloud des news relatives à {tick.info['shortName']} \n ({(news['Date'].max()-news['Date'].min()).days} derniers jours)",
-        fontsize=16,
+        f"Word cloud of the last 100 articles about {tick.info['shortName']} \n ({(news['Date'].max()-news['Date'].min()).days} last days)",
+        fontsize=12,
     )
     plt.axis("off")
     return fig
@@ -291,9 +291,14 @@ def check_day_month():
     day_user = datetime.date.today()
     date_tuple = calendar.monthrange(year=day_user.year, month=day_user.month)
 
-    print(f"This model can only be used to predict the last day of the current month")
+    a = "This model can only be used to predict the last day of the current month."
+    err = 0
     if day_user.day < date_tuple[1] - 1:
-        print(f"Please us this model on the {date_tuple[1]} or the day before")
+        b = f"Please us this model on the {date_tuple[1]} or the day before."
+        err += 1
+    else:
+        b = f"Today is {day_user}."
+    return a, b, err
 
 
 def prepa_data_for_svr(ticker: str):
@@ -422,4 +427,5 @@ def plot_pred_actual(
     ax.set_title("Historical price and prediction")
     return fig
 
-#model.plot_parameters()
+
+# model.plot_parameters()

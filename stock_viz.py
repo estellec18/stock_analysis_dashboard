@@ -57,36 +57,56 @@ def get_ticker_info(ticker: str):
     """
 
     tick = yf.Ticker(ticker)
+    error = 0
 
     try:
-        print(tick.info["longName"])
+        name = tick.info["longName"]
     except:
-        return("This ticker does not existe, please check again")
-    print("--------------------------------")
-    print("Company Industry : ", tick.info["industry"])
-    print("Company Sector : ", tick.info["sector"])
-    print("Company Country : ", tick.info["country"])
-    print(f"Number of Full-time employees : {tick.info['fullTimeEmployees']:,.0f}")
-    print("--------------------------------")
-    print(
-        f"Last closing price : {tick.info['financialCurrency']} {tick.info['previousClose']}"
+        error = 1
+        return
+
+    industry = tick.info["industry"]
+    sector = tick.info["sector"]
+    country = tick.info["country"]
+    nb_employee = tick.info["fullTimeEmployees"]
+    l_cl_pr = tick.info["previousClose"]
+    mkcap = tick.info["marketCap"]
+    pe = tick.info["trailingPE"]
+    beta = tick.info["beta"]
+    rev = tick.info["totalRevenue"]
+    ebm = tick.info["ebitdaMargins"]
+    fcf = tick.info["freeCashflow"]
+    evalue = tick.info["enterpriseValue"]
+
+    return (
+        error,
+        name,
+        industry,
+        sector,
+        country,
+        nb_employee,
+        l_cl_pr,
+        mkcap,
+        pe,
+        beta,
+        rev,
+        ebm,
+        fcf,
+        evalue,
     )
-    print(
-        f"Market capitalization : {tick.info['financialCurrency']} {tick.info['marketCap']/1000000000:,.0f} b"
-    )
-    print(f"Price Earnings Ratio : {tick.info['trailingPE']:.2f}")
-    print("Company Beta : ", tick.info["beta"])
-    print("--------------------------------")
-    print(
-        f"Total revenue : {tick.info['financialCurrency']} {tick.info['totalRevenue']/1000000000:,.0f} b"
-    )
-    print(f"EBITDA margin : {tick.info['ebitdaMargins']*100:.2f}%")
-    print(
-        f"Free Cash Flow : {tick.info['financialCurrency']} {tick.info['freeCashflow']/1000000000:,.0f} b"
-    )
-    print(
-        f"Company valuation : {tick.info['financialCurrency']} {tick.info['enterpriseValue']/1000000000:,.0f} b"
-    )
+
+
+def get_currency(ticker: str):
+    """Returns currency of a company
+
+    Args:
+        ticker (str): ticker of the company
+
+    Returns:
+        str: currency
+    """
+    tick = yf.Ticker(ticker)
+    return tick.info["currency"]
 
 
 def price_hist_analysis(ticker: str, start: str, end=None, typo="lin"):
@@ -109,14 +129,14 @@ def price_hist_analysis(ticker: str, start: str, end=None, typo="lin"):
 
     figure = go.Figure(data=[go.Scatter(x=df.index, y=df.Close)])
     figure.update_layout(
-        title=f"{tick.info['shortName']} historical closing price",
+        title=f"{tick.info['shortName']} -- historical closing price",
         width=1100,
         height=600,
     )
     if typo == "log":
         figure.update_yaxes(title_text="log scale", type="log")
 
-    return(figure)
+    return figure
 
 
 def combo_price_analysis(ticker: str, start: str, end=None):
@@ -241,12 +261,12 @@ def candlestick_analysis(ticker: str, start: str, end=None):
         ]
     )
     figure.update_layout(
-        title=f"{tick.info['shortName']} Candlestick Chart",
+        title=f"{tick.info['shortName']} -- Candlestick Chart",
         width=1100,
         height=600,
         xaxis_rangeslider_visible=True,
     )
-    return(figure)
+    return figure
 
 
 def ts_analysis_per_month(ticker: str, start: str, end=None):
@@ -342,7 +362,7 @@ def trend_analysis(
         x=df.index,
         y="Close",
         labels={ticker},
-        title=f"{ticker} Daily Price Chart with {short_term}-day and {long_term}-day {type} moving averages ({tick.info['financialCurrency']})",
+        title=f"{tick.info['shortName']} -- Daily Price Chart with {short_term}-day and {long_term}-day {type} moving averages ({tick.info['financialCurrency']})",
     )
     fig.update_traces(line=dict(color="blue", width=1.5))
 
@@ -353,9 +373,11 @@ def trend_analysis(
         x=df.index, y=df["long_t_mv"], name=f"{type} MV {long_term}", line_dash="dot"
     )
 
-    fig.update_layout(height=600, width=1100, showlegend=True)
+    fig.update_layout(
+        height=600, width=1200, showlegend=True, yaxis_title="", xaxis_title=""
+    )
 
-    return(fig)
+    return fig
 
 
 def bollinger_analysis(ticker: str, start: str, end=None, mv_av=60, std=1):
@@ -406,7 +428,9 @@ def bollinger_analysis(ticker: str, start: str, end=None, mv_av=60, std=1):
         line_dash="dot",
     )
 
-    fig.update_layout(height=600, width=1100, showlegend=True)
+    fig.update_layout(
+        height=600, width=1300, showlegend=True, yaxis_title="", xaxis_title=""
+    )
 
     return fig
 
@@ -494,7 +518,7 @@ def strenght_analysis(ticker: str, index_tick: str, start: str, end=None):
         y="Relative_Strength",
         title=f"Relative strength analysis : {ticker} against {dico_index[index_tick]}",
     )
-    figure.update_layout(height=600, width=1100, showlegend=False)
+    figure.update_layout(height=600, width=1200, showlegend=False, xaxis_title="")
     return figure
 
 
@@ -549,7 +573,9 @@ def comps_industry(ticker: str, start: str, end=None, nb=5):
                 line=dict(width=1.5),
             )
 
-    fig.update_layout(height=600, width=1100, showlegend=True)
+    fig.update_layout(
+        height=600, width=1300, showlegend=True, xaxis_title="", yaxis_title=""
+    )
     return fig
 
 
@@ -563,8 +589,8 @@ def comps_choice(ticker: str, list_comps: str, start: str, end=None, norm=False)
         end (_type_, optional): end of timeframe. Defaults to None.
         norm (bool): if true, show normalised variation from 100
     """
-    
-    list_in = list_comps.split(', ')
+
+    list_in = list_comps.split(", ")
     string_ticker = ""
     dict_comps = {}
     for tick in list_in:
@@ -593,12 +619,13 @@ def comps_choice(ticker: str, list_comps: str, start: str, end=None, norm=False)
         subset=[f"{ticker}"], **{"background-color": "aqua"}
     )
 
-    plot = sns.heatmap(df_close.corr(), cmap='Reds', annot=True)
+    plot = sns.heatmap(df_close.corr(), cmap="Reds", annot=True)
+    plot.set_title("Correlation between assets")
 
     if norm is True:
         df_close = df_close.div(df_close.iloc[0]).mul(100)
 
-    fig = px.line(df_close, x=df_close.index, y=f"{ticker}", labels={f"{ticker}":''})
+    fig = px.line(df_close, x=df_close.index, y=f"{ticker}", labels={f"{ticker}": ""})
     fig.update_traces(line=dict(color="Black", width=2))
 
     for comps in df_close.columns:
@@ -610,7 +637,7 @@ def comps_choice(ticker: str, list_comps: str, start: str, end=None, norm=False)
                 line_dash="dot",
                 line=dict(width=1.5),
             )
-    fig.update_layout(height=600, width=1100, showlegend=True)
+    fig.update_layout(height=600, width=1300, showlegend=True, xaxis_title="")
     return fig, plot, df_describe.round()
 
 

@@ -98,8 +98,8 @@ with st.container():
                 ebm,
                 fcf,
                 evalue,
-                curr,
             ) = sviz.get_ticker_info(stock_ticker)
+            curr = sviz.get_currency(stock_ticker)
             st.markdown("##")
             st.markdown(f"Basic information - {name}")
             st.markdown("----------------")
@@ -264,6 +264,7 @@ with tab6:
     )
     trend_button = st.button("Trend prediction")
     if trend_button:
+        curr = sviz.get_currency(stock_ticker)
         df, new_predictors = sml.prepa_data_for_class(stock_ticker)
         predictions = sml.backtest(df, new_predictors, start=1250, step=125)
         df_profit, user_profit, actual_profit = sml.strategy_profit(
@@ -300,11 +301,19 @@ with tab6:
 with tab7:
     eom_button = st.button("Last day of the month prediction")
     if eom_button:
-        days, close_prices = sml.prepa_data_for_svr(stock_ticker)
-        day_pred, pred = sml.predict_last_day_month(days, close_prices)
-        st.markdown(
-            f"For the {day_pred[0][0]} of {calendar.month_name[datetime.date.today().month]}, the closing price of {stock_ticker} is estimated at {pred:.2f} {curr}."
-        )
+        curr = sviz.get_currency(stock_ticker)
+        a, b, err = sml.check_day_month()
+        st.markdown(f"{a}")
+        st.markdown(f"{b}")
+        st.markdown("##")
+        if err == 0:
+            days, close_prices = sml.prepa_data_for_svr(stock_ticker)
+            day_pred, pred = sml.predict_last_day_month(days, close_prices)
+            st.markdown(
+                f"For the {day_pred[0][0]} of {calendar.month_name[datetime.date.today().month]}, the closing price of {stock_ticker} is estimated at {pred:.2f} {curr}."
+            )
+        else:
+            st.markdown("This model is not useful at this point.")
 
 with tab8:
     col1, col2, col3 = st.columns([0.33, 0.33, 0.33], gap="medium")
@@ -434,4 +443,4 @@ with tab11:
             dico=None,
         )
         st.dataframe(df_alloc)
-        st.markdown(f"Funds remaining: {leftover:.2f} {curr}")
+        st.markdown(f"Funds remaining: {leftover:.2f}")

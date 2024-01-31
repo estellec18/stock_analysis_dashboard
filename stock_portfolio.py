@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 
 def single_asset_return(ticker: str, start_date: str, end_date: str):
-    """For a specific asset and given a defined timeframen returns :
+    """For a specific asset and given a defined timeframe returns :
     - the simple holding period return (only capital gain)
     - the holding period return (capital gain + dividend yield)
     - the annualized holding period return
@@ -55,6 +55,16 @@ def single_asset_return(ticker: str, start_date: str, end_date: str):
 
 
 def sharp_ratio(ticker: str, start_date: str, end_date: str):
+    """Returns the hsarp ratio of an asset given a specific timeframe
+
+    Args:
+        ticker (str): ticker of the asset
+        start_date (str): beg of the period
+        end_date (str): end of the period
+
+    Returns:
+        float: sharp ratio
+    """
     df = yf.download(tickers=ticker, start=start_date, end=end_date, rounding=True)
     df["returns"] = df["Adj Close"].pct_change(1)
 
@@ -78,45 +88,56 @@ def sharp_ratio(ticker: str, start_date: str, end_date: str):
 #### PORTFOLIO ANALYSIS ####
 
 
-def portfolio_return(ticker_dico_w_weight: dict, start_date: str, end_date: str):
+def portfolio_return(tickers: str, wgts: str, start_date: str, end_date: str):
     """Return the holding period return of a portfolio over a specified period + the beta of the porfolio
 
     Args:
-        ticker_dico_w_weight (dict): dictionnary of weights (ticker:weigth)
-        start_date (str): beg of period
-        end_date (str): end of period
+        tickers (str): all the assets in a single string separated by ', '
+        wgts (str): all the weights in a single string separated by ', '
+        start_date (str): beg of the period
+        end_date (str): end of the period
 
     Returns:
-        float: holding period return of a portfolio
+        float: return & beta of the portfolio
     """
 
-    if sum(ticker_dico_w_weight.values()) != 1:
+    # the inpus are given by the user of the dashboard
+    # a string is the easiest way
+    list_tickers = tickers.split(", ")
+    weights = wgts.split(", ")
+    list_weights = [eval(i) for i in weights]
+
+    if sum(list_weights) != 1:
         return "La somme des poids doit être égale à 1"
 
     st_re = []
     dico_beta = {}
-    for tick in ticker_dico_w_weight.keys():
-        shpr, hpr, an_hrp, var, std = single_asset_return(tick, start_date, end_date)
-        st_re.append(hpr * ticker_dico_w_weight[tick])
-        info = yf.Ticker(tick)
-        dico_beta[tick] = info.get_info()["beta"]
+    for i in range(len(list_tickers)):
+        shpr, hpr, an_hrp, var, std = single_asset_return(
+            list_tickers[i], start_date, end_date
+        )
+        st_re.append(hpr * list_weights[i])
+        info = yf.Ticker(list_tickers[i])
+        dico_beta[list_tickers[i]] = info.get_info()["beta"]
 
     beta_port = 0
-    for tick2 in ticker_dico_w_weight.keys():
-        beta_port += ticker_dico_w_weight[tick2] * dico_beta[tick2]
+    for i in range(len(list_tickers)):
+        beta_port += list_weights[i] * dico_beta[list_tickers[i]]
 
     return sum(st_re), beta_port
 
 
-def portfolio_simulation(list_stocks: list, start: str, end: str):
+def portfolio_simulation(stocks: str, start: str, end: str):
     """(1) Plots stocks on a return/risk basis and (2) lists the stocks to remove because of bad risk/return ratio in comparison to the other stocks of the portfolio
 
     Args:
-        list_stocks (list): list of the stocks the user would like to have in its portfolio
+        stocks (str): all the assets in a single string separated by ', '
         start (str): beg of period
         end (str): end of period
     """
 
+    # the input is necessary a string because inputed by the user of the dashboard
+    list_stocks = stocks.split(", ")
     list_stocks.append("VOO")  # addition of 'VOO' as benchmark for S&P500
     dfi = yf.download(
         tickers=" ".join(list_stocks),
@@ -137,7 +158,7 @@ def portfolio_simulation(list_stocks: list, start: str, end: str):
     df2["Company_ticker"] = df2.index
     df2["Ratio"] = df2["Expected_annual_return"] / df2["Expected_annual_risk"]
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6, 6))
     cols = ["royalblue" if x != "VOO" else "coral" for x in df2.index]
     ax.scatter(df2["Expected_annual_risk"], df2["Expected_annual_return"], c=cols)
     ax.set_xlabel("Annual risk")
@@ -159,18 +180,27 @@ def portfolio_simulation(list_stocks: list, start: str, end: str):
         if no_better_assets == False:
             remove_asset_list.append(tick)
 
-    return remove_asset_list
+    return fig, remove_asset_list
 
 
-def portfolio_kpi(list_stocks: list, weights: list, start: str, end: str):
+def portfolio_kpi(stocks: str, start: str, end: str, wghts=None):
     """Compute metrics for a given portfolio(tickers + weigths) for a given epriod
 
     Args:
-        list_stocks (list): list of tickers
-        weights (list): list of weights (in the same order as tickers)
+        stocks (str): all the assets in a single string separated by ', '
         start (str): beg of period
         end (str): enf od period
+        wghts (str): all the weights in a single string separated by ', ' (if None, will apply same weights to all assets)
     """
+
+    list_stocks = stocks.split(", ")
+    if wghts is None:
+        n = 1 / float(len(list_stocks))
+        weights = [n] * len(list_stocks)
+        weights = np.array(weights)
+    else:
+        list_weights = wghts.split(", ")
+        weights = [eval(i) for i in list_weights]
 
     dfi = yf.download(
         tickers=" ".join(list_stocks),
@@ -199,30 +229,28 @@ def portfolio_kpi(list_stocks: list, weights: list, start: str, end: str):
     port_volatility = np.sqrt(port_variance)
     port_exp_return = np.sum(w * annual_returns)
 
-    print(f"Expected annual return: {port_exp_return*100:.2f}%")
-    print(f"Annual volatility (risk): {port_volatility*100:.2f}%")
-    print(f"Annual variance: {port_variance*100:.2f}%")
-
+    fig, ax = plt.subplots(figsize=(6, 6))
     for c in dfi.columns.values:
-        plt.plot(dfi[c], label=c)
-    plt.title("Portfolio adj. close price history")
-    plt.ylabel("Adj. closing price")
-    plt.legend()
+        ax.plot(dfi[c], label=c)
+    ax.set_title("Portfolio adj. close price history")
+    ax.set_ylabel("Adj. closing price")
+    ax.legend()
 
-    return cov_matrix_annual, port_variance, port_volatility, port_exp_return
+    return fig, cov_matrix_annual, port_variance, port_volatility, port_exp_return
 
 
-def portfolio_optimisation(list_stocks: list, start: str, end: str):
+def portfolio_optimisation(stocks: str, start: str, end: str):
     """Given a list of stocks and a period, returns the weight that would lead to the best perf
 
     Args:
-        list_stocks (list): list of tickers
+        stocks (str): all the assets in a single string separated by ', '
         start (str): beg of period
         end (str): end of period
 
     Returns:
         _type_: _description_
     """
+    list_stocks = stocks.split(", ")
 
     df = yf.download(
         tickers=" ".join(list_stocks),
@@ -241,28 +269,25 @@ def portfolio_optimisation(list_stocks: list, start: str, end: str):
     weights = ef.max_sharpe()  # w to max sharp ratio
     cleaned_weights = ef.clean_weights()  # sets w below seuil to 0
 
-    ef.portfolio_performance(verbose=True)
+    ver = ef.portfolio_performance(verbose=True)
 
-    return cleaned_weights
+    return cleaned_weights, ver
 
 
 def portfolio_allocation(
-    list_stocks: list,
-    start: str,
-    end: str,
-    clean_w: dict,
-    invest_value: int,
-    dico: None,
+    stocks: list, start: str, end: str, clean_w: dict, invest_value: int, dico: None
 ):
-    """Gvien a list of assets and an amount to invest, return the best allocation for max performance
+    """Given a list of assets and an amount to invest, return the best allocation for max performance
 
     Args:
-        list_stocks (list): list of tickers the investor wants tio invest in
+        stocks (str): all the assets in a single string separated by ', '
         start (str): beg period
         end (str): end period
-        clean_w (_type_): weights invested in each asset
+        clean_w (dict): weights invested in each asset
         invest_value (int): amount the investor want to invest
+        dico (dict): to have the name associated with the ticker
     """
+    list_stocks = stocks.split(", ")
 
     df = yf.download(
         tickers=" ".join(list_stocks),
@@ -279,8 +304,8 @@ def portfolio_allocation(
     da = DiscreteAllocation(weights, latest_prices, total_portfolio_value=invest_value)
 
     allocation, leftover = da.lp_portfolio()
-    print("Discrete allocation ", allocation)
-    print(f"Funds remaining {leftover:.2f}$")
+    # print("Discrete allocation ", allocation)
+    # print(f"Funds remaining {leftover:.2f}$")
 
     stock = allocation.keys()
     nb_stock = allocation.values()
@@ -288,18 +313,20 @@ def portfolio_allocation(
     df_alloc["Ticker"] = stock
     if dico is not None:
         df_alloc["Name"] = df_alloc["Ticker"].apply(lambda x: dico[x])
+    df_alloc["Share_portf"] = df_alloc["Ticker"].map(lambda x: clean_w[x])
+    df_alloc["Share_portf"] = df_alloc["Share_portf"] * 100
     df_alloc["Nb_stock"] = nb_stock
     df_alloc["Current_price"] = df_alloc["Ticker"].apply(lambda x: latest_prices[x])
     df_alloc["Cost"] = df_alloc["Nb_stock"] * df_alloc["Current_price"]
 
-    return df_alloc
+    return df_alloc, leftover
 
 
 #### COMPARISON FROM AGGREGATED GROUPS IN YAHOO FINANCE ####
 
 
 def available_screener():
-    """Returns the list of grouops of stocks already made by yahoo finance (to choose from for portfolion creation)
+    """Returns the list of groups of stocks already made by yahoo finance (to choose from for portfolion creation)
 
     Returns:
         list: list of groups
@@ -329,14 +356,14 @@ def ticks_from_group(group: str):
     return tickers, dico_tick
 
 
-def valuation(list_stocks: list):
+def valuation(list_stocks: list, dico_name: dict):
     """Plot each asset of the list in a marketcap/EV basis
 
     Args:
         list_stocks (list): _description_
 
     Returns:
-        _type_: _description_
+        dataframe: dataframe with market cap and enterprise value for comparison purpose
     """
 
     # Market capitalization is the sum total of all the outstanding shares of a company (stock's current share price X number of shares outstanding)
@@ -357,6 +384,7 @@ def valuation(list_stocks: list):
 
     new = pd.DataFrame()
     new["asset"] = list_stocks
+    new["name"] = new["asset"].map(lambda x: dico_name[x])
     new["market cap"] = marketcap
     new["market cap"] = new["market cap"] / 1000000000
     new["enterprise value"] = ev
@@ -373,11 +401,11 @@ def valuation(list_stocks: list):
             row["asset"], (row["market cap"], row["enterprise value"]), c="black"
         )
 
-    return new
+    return fig, new
 
 
 def fair_market_value_by_group(group: str):
-    """a stock is consideted undervalued if fairmarket value > current price
+    """A stock is consideted undervalued if fairmarket value > current price
 
     Args:
         group (str): name of the group we are looking for
@@ -401,8 +429,9 @@ def fair_market_value_by_group(group: str):
     df["Fair_market_value"] = mean_pe * df["Earning_per_share"]
     df["Over_Under_ratio"] = df["Current_price"] / df["Fair_market_value"]
     df["Value_label"] = np.where(
-        df["Over_Under_ratio"] < 1, "Under Valued", "Fair of Over Valued"
+        df["Over_Under_ratio"] < 1, "Under Valued", "Fair or Over Valued"
     )
     df["Value_percentage"] = abs(df["Over_Under_ratio"] - 1) * 100
+    df = df.sort_values(by="Fair_market_value", ascending=False)
 
     return df
