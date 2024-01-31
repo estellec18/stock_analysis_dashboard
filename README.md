@@ -13,14 +13,24 @@ Objectif : création d'un dashboard d'analyse d'actions, sur la base des informa
 
 Ces 3 modules sont en cours de déploiement sur un dashboard. Ci-dessous, quelques captures d'écran préliminaires du dashboard (en cours)
 
-<img width="1327" alt="Capture d’écran 2024-01-30 à 17 10 35" src="https://github.com/estellec18/stock_analysis_dashboard/assets/126951321/83ee2da9-218d-4415-9213-3ceda387c820">
+![Alt text](<Capture d’écran 2024-01-31 à 16.00.23-1.png>)
 
+#
 
+![Alt text](<Capture d’écran 2024-01-31 à 16.00.56.png>)
 
-<img width="1163" alt="Capture d’écran 2024-01-30 à 17 03 14" src="https://github.com/estellec18/stock_analysis_dashboard/assets/126951321/f4dee68b-9919-4939-9935-105c52fff453">
+#
 
+![Alt text](<Capture d’écran 2024-01-31 à 16.01.29.png>)
 
-<img width="1136" alt="Capture d’écran 2024-01-30 à 17 03 31" src="https://github.com/estellec18/stock_analysis_dashboard/assets/126951321/b40f5d8a-237f-41ab-abb0-b7dd9f2cad21">
+#
 
+![Alt text](<Capture d’écran 2024-01-31 à 16.02.26.png>)
 
-<img width="777" alt="Capture d’écran 2024-01-30 à 17 04 34" src="https://github.com/estellec18/stock_analysis_dashboard/assets/126951321/bb0945ec-7cb5-4f18-bb28-f99b3f27181f">
+#
+
+![Alt text](<Capture d’écran 2024-01-31 à 16.03.24-1.png>)
+
+#
+
+![Alt text](<Capture d’écran 2024-01-31 à 16.04.24.png>)
