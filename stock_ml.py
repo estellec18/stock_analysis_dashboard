@@ -6,7 +6,6 @@ import calendar
 import datetime
 
 import yfinance as yf
-from yahooquery import Screener
 from finvizfinance.quote import finvizfinance
 
 # NLP
@@ -16,7 +15,6 @@ from wordcloud import WordCloud
 
 # Classification
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import precision_score
 
 # Regression
 from sklearn.svm import SVR
