@@ -1,5 +1,7 @@
 # stock_analysis_dashboard
 
+*projet élaboré pour s'entrainer à gérer des time series*
+
 Objectif : création d'un dashboard d'analyse d'actions, sur la base des informations disponibles via l'API yahoo finance (données issues des marchés financiers quasi en direct).
 
 3 modules ont été développés:
@@ -11,7 +13,7 @@ Objectif : création d'un dashboard d'analyse d'actions, sur la base des informa
     - prédire le prix sur une période donnée
 - stock_portfolio.py : permet d'analyser les performances de portefeuilles d'action et de les optimiser
 
-Ces 3 modules sont en cours de déploiement sur un dashboard. Ci-dessous, quelques captures d'écran préliminaires du dashboard (en cours)
+Ci-dessous, quelques captures d'écran préliminaires du dashboard
 
 ![Capture d’écran 2024-01-31 à 16 00 23](https://github.com/estellec18/stock_analysis_dashboard/assets/126951321/3d893a7c-66b1-4870-b994-6744d7d33e47)
 
