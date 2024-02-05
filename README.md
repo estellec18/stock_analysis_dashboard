@@ -1,6 +1,6 @@
 # stock_analysis_dashboard
 
-*projet élaboré pour s'entrainer à gérer des time series*
+*projet élaboré afin de se familiariser à la gestion des time series*
 
 Objectif : création d'un dashboard d'analyse d'actions, sur la base des informations disponibles via l'API yahoo finance (données issues des marchés financiers quasi en direct).
 
