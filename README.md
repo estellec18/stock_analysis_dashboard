@@ -43,4 +43,4 @@ Ci-dessous, quelques captures d'écran préliminaires du dashboard
 - Il est très compliqué, voir peu pertinent, de prédire le prix d'actions à partir d'algorithmes de machine learning.
 Cela s'explique par la nature même de la data et ce qui drive sa fluctuation : de nombreux facteurs externes interviennent (évènement macroéconomique, comportement irrationnel,...) et se combinent pour rendre les prix des actions dynamiques et volatiles, avec des patterns peu répétitifs.
 
-- Il serait interessant d'introduire des éléments macroéconomiques (inflation rate, unemployment rate...) comme feature du modele en plus du prix de l'action lui même. Cela est impossible dans la mesure où les KPI macro sont calculés pour la période n-1 et ne serait donc pas disponible au moment de l'inference.
+- Il serait interessant d'introduire des éléments macroéconomiques (inflation rate, unemployment rate...) comme feature du modele en plus du prix de l'action lui même. Cela est impossible dans la mesure où les KPI macro sont calculés pour la période n-1 et ne seraient donc pas disponibles au moment de l'inference (hindsight bias).
