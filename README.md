@@ -37,3 +37,10 @@ Ci-dessous, quelques captures d'écran préliminaires du dashboard
 
 ![Capture d’écran 2024-01-31 à 16 04 24](https://github.com/estellec18/stock_analysis_dashboard/assets/126951321/0546113b-7e4a-4dd3-b4ce-a23a6f55410f)
 
+
+**LIMITES**
+
+- Il est très compliqué, voir peu pertinent, de prédire le prix d'actions à partir d'algorithmes de machine learning.
+Cela s'explique par la nature même de la data et ce qui drive sa fluctuation : de nombreux facteurs externes interviennent (évènement macroéconomique, comportement irrationnel,...) et se combinent pour rendre les prix des actions dynamiques et volatiles, avec des patterns peu répétitifs.
+
+- Il serait interessant d'introduire des éléments macroéconomiques (inflation rate, unemployment rate...) comme feature du modele en plus du prix de l'action lui même. Cela est impossible dans la mesure où les KPI macro sont calculés pour la période n-1 et ne serait donc pas disponible au moment de l'inference.
